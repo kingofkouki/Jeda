@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jeda. - Latihan Pernapasan</title>
+
+<!-- Pengaturan PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<style>
+  /* Palet Warna & Efek Kaca (Glassmorphism) */
+  :root[data-theme="light"] { 
+    color-scheme: light; 
+    --bg: #f5f5f9; 
+    --ink: #1a1a1c; 
+    --muted: #8e8e93; 
+    --accent: #007aff; 
+    --orb-glow: rgba(0, 122, 255, 0.4); /* Glow biru luar lebih terasa */
+    --glass-bg: rgba(255, 255, 255, 0.6);
+    --glass-border: rgba(0, 0, 0, 0.1); 
+  }
+  :root { 
+    color-scheme: dark; 
+    --bg: #000000; 
+    --ink: #ffffff; 
+    --muted: #8e8e93; 
+    --accent: #0a84ff; 
+    --orb-glow: rgba(10, 132, 255, 0.65); /* Glow biru neon pekat */
+    --glass-bg: rgba(28, 28, 30, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.15); 
+  }
+  
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { 
+    margin: 0; 
+    background: var(--bg); 
+    color: var(--ink); 
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    transition: background-color 0.6s ease, color 0.6s ease;
+  }
+  
+  .topbar { 
+    display: flex; justify-content: flex-end; padding: 20px; 
+    position: relative; z-index: 20;
+  }
+  .theme-toggle { 
+    display: inline-flex; align-items: center; gap: 6px; 
+    background: var(--glass-bg); color: var(--ink); 
+    border: 2px solid var(--glass-border); 
+    border-radius: 20px; 
+    padding: 7px 13px; cursor: pointer; font: inherit; font-size: 0.9rem; font-weight: 600; 
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+
+  .container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* Tipografi */
+  h1 { font-size: 3rem; font-weight: 300; margin: 0 0 4px; letter-spacing: -1.5px; }
+  .sub { color: var(--muted); font-size: 1.05rem; font-weight: 400; margin: 0 0 50px; }
+
+  /* Lingkaran Pernapasan Sesuai Selera Anda */
+  .breathe-container {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 50px;
+  }
+
+  /* Modifikasi: Lingkaran biru tebal, glow neon yang lebih rapat & kuat */
+  .circle {
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    background: transparent; /* Kosong di tengah */
+    border: 5px solid var(--accent); /* Garis biru sangat tebal */
+    border-radius: 50%;
+    /* Double glow: pendaran luar & dalam super mulus */
+    box-shadow: 0 0 20px var(--orb-glow), 
+                0 0 40px var(--orb-glow), 
+                inset 0 0 15px var(--orb-glow);
+  }
+
+  .instruction {
+    position: absolute;
+    color: var(--ink);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none; 
+    transition: opacity 0.4s ease;
+  }
+  
+  .phase-text { font-size: 1.4rem; font-weight: 600; letter-spacing: 0.5px; }
+  .ready-text { font-size: 1.25rem; font-weight: 500; opacity: 0.8; }
+
+  /* Tombol Kontrol */
+  .btn-start {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 99px;
+    padding: 16px 44px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 24px var(--orb-glow);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s;
+  }
+  .btn-start:active { transform: scale(0.92); }
+  .btn-start.stop {
+    background: var(--glass-bg);
+    color: var(--ink);
+    border: 2px solid var(--glass-border);
+    box-shadow: none;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Kartu Manfaat (Glassmorphism) */
+  .benefits-card {
+    margin-top: 50px;
+    width: 100%;
+    max-width: 340px;
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 24px;
+    text-align: left;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+  }
+  .benefits-card h3 {
+    color: var(--ink);
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+  }
+  .benefits-card p { margin: 0 0 12px 0; }
+  .benefits-card ul { margin: 0; padding-left: 20px; }
+  .benefits-card li { margin-bottom: 8px; }
+
+  footer { 
+    text-align: center; padding: 24px; color: var(--muted); font-size: 0.85rem; 
+    position: relative; z-index: 20;
+  }
+  .creator-text { font-weight: 500; color: var(--ink); display: block; opacity: 0.6; margin-top: 6px; }
+
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="theme-toggle" id="themeBtn" type="button">
+    <span id="themeIcon">☀️</span><span id="themeLabel">Light</span>
+  </button>
+</div>
+
+<div class="container">
+  <h1>Jeda.</h1>
+  <p class="sub">Tenangkan pikiran dalam 19 detik.</p>
+
+  <div class="breathe-container">
+    <div class="circle" id="circle"></div>
+    <div class="instruction" id="instructionDisplay">
+      <span class="ready-text">Siap?</span>
+    </div>
+  </div>
+
+  <button class="btn-start" id="controlBtn">Mulai Bernapas</button>
+  
+  <div class="benefits-card">
+    <h3>Mengapa Jeda?</h3>
+    <p>Menggunakan ritme pernapasan <strong>4-7-8</strong> yang secara medis terbukti bermanfaat untuk:</p>
+    <ul>
+      <li>Meredakan rasa panik dan kecemasan dengan cepat.</li>
+      <li>Mengaktifkan mode istirahat tubuh (sistem saraf parasimpatis).</li>
+      <li>Menurunkan detak jantung, membantu Anda tidur lebih cepat.</li>
+    </ul>
+  </div>
+
+</div>
+
+<footer>
+  <span class="creator-text">Created by Zaky Wahyudiansah</span>
+</footer>
+
+<script>
+// Pengaturan Tema
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  const isDark = theme === "dark";
+  document.getElementById("themeIcon").textContent = isDark ? "☀️" : "🌙";
+  document.getElementById("themeLabel").textContent = isDark ? "Light" : "Dark";
+  try { localStorage.setItem("jedaTheme", theme); } catch(e) {}
+}
+let currentTheme = "dark";
+try { currentTheme = localStorage.getItem("jedaTheme") || "dark"; } catch(e) {}
+applyTheme(currentTheme);
+document.getElementById("themeBtn").addEventListener("click", () => {
+  currentTheme = currentTheme === "dark" ? "light" : "dark";
+  applyTheme(currentTheme);
+});
+
+// Logika Pernapasan dengan Fade Effect
+const circle = document.getElementById('circle');
+const display = document.getElementById('instructionDisplay');
+const btn = document.getElementById('controlBtn');
+
+let isBreathing = false;
+let timerInterval;
+let currentPhase = "";
+let timeLeft = 0; 
+
+const WAKTU_TARIK = 4;
+const WAKTU_TAHAN = 7;
+const WAKTU_HEMBUS = 8;
+
+function updateUIText(newText) {
+  display.style.opacity = 0; 
+  setTimeout(() => {
+    display.innerHTML = `<span class="phase-text">${newText}</span>`;
+    display.style.opacity = 1; 
+  }, 300); 
+}
+
+function nextPhase() {
+  if (currentPhase === "Tarik napas") {
+    currentPhase = "Tahan";
+    timeLeft = WAKTU_TAHAN;
+    updateUIText("Tahan");
+  } else if (currentPhase === "Tahan") {
+    currentPhase = "Hembuskan";
+    timeLeft = WAKTU_HEMBUS;
+    updateUIText("Hembuskan");
+    
+    // Animasi mengecil kembali ke semula
+    circle.style.transition = `transform ${WAKTU_HEMBUS}s ease-in-out`;
+    circle.style.transform = "scale(1)";
+  } else if (currentPhase === "Hembuskan") {
+    currentPhase = "Tarik napas";
+    timeLeft = WAKTU_TARIK;
+    updateUIText("Tarik napas");
+    
+    // Animasi membesar (scale yang diperbesar agar perubahan ukuran sangat terasa)
+    circle.style.transition = `transform ${WAKTU_TARIK}s cubic-bezier(0.25, 0.1, 0.25, 1)`;
+    circle.style.transform = "scale(1.75)";
+  }
+}
+
+function startBreathing() {
+  isBreathing = true;
+  btn.textContent = "Berhenti";
+  btn.classList.add("stop");
+  
+  currentPhase = "Tarik napas";
+  timeLeft = WAKTU_TARIK;
+  updateUIText("Tarik napas");
+  
+  circle.style.transition = `transform ${WAKTU_TARIK}s cubic-bezier(0.25, 0.1, 0.25, 1)`;
+  circle.style.transform = "scale(1.75)";
+
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    if (timeLeft <= 0) {
+      nextPhase();
+    }
+  }, 1000);
+}
+
+function stopBreathing() {
+  isBreathing = false;
+  btn.textContent = "Mulai Bernapas";
+  btn.classList.remove("stop");
+  
+  clearInterval(timerInterval);
+  
+  display.style.opacity = 0;
+  setTimeout(() => {
+    display.innerHTML = '<span class="ready-text">Siap?</span>';
+    display.style.opacity = 1;
+  }, 300);
+  
+  circle.style.transition = "transform 0.8s ease-out";
+  circle.style.transform = "scale(1)";
+}
+
+btn.addEventListener("click", () => {
+  if (isBreathing) {
+    stopBreathing();
+  } else {
+    startBreathing();
+  }
+});
+
+// Registrasi Service Worker PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
