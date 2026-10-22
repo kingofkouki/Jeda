@@ -2,10 +2,10 @@
   "name": "Jeda. - Latihan Pernapasan",
   "short_name": "Jeda.",
   "description": "Aplikasi relaksasi pernapasan 4-7-8 untuk meredakan stres dan kecemasan.",
-  "start_url": "./index.html",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#0a84ff",
+  "theme_color": "#000000",
   "icons": [
     {
       "src": "icon-192.png",
